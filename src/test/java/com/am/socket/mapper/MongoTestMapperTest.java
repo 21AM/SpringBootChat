@@ -2,6 +2,8 @@ package com.am.socket.mapper;
 
 import com.am.socket.Application;
 import com.am.socket.dao.MongoTestMapper;
+import com.am.socket.model.Comment;
+import com.am.socket.model.Moment;
 import com.am.socket.model.MongoTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,8 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,10 +28,12 @@ public class MongoTestMapperTest {
 
     @Autowired
     private MongoTestMapper mongoTestMapper;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Before
     public void setUp() {
-        mongoTestMapper.deleteAll();
+//        mongoTestMapper.deleteAll();
     }
 
     @Test
@@ -58,5 +66,48 @@ public class MongoTestMapperTest {
         MongoTest test2 = mongoTestMapper.findByKey2("2");
         mongoTestMapper.delete(test2);
         log.info("find: {}", mongoTestMapper.findAll().size());
+    }
+
+    @Test
+    public void testMomentInsert() {
+        Moment moment = new Moment();
+        Comment comment1 = new Comment();
+        Comment comment2 = new Comment();
+        ArrayList<Comment> comments = new ArrayList<>();
+        comments.add(comment1);
+        comments.add(comment2);
+        moment.setComments(comments);
+
+        moment.setMomentId(1);
+        moment.setContent("iloveyou");
+        moment.setUserId(1);
+        moment.setUsername("mazy");
+        moment.setPubtime(new Date());
+
+        comment1.setComment("comment1");
+        comment1.setCommentId(1);
+        comment1.setMomentId(1);
+        comment1.setPubtime(new Date());
+        comment1.setUserId(2);
+        comment1.setUsername("angle");
+
+        comment2.setComment("comment2");
+        comment2.setCommentId(2);
+        comment2.setMomentId(1);
+        comment2.setPubtime(new Date());
+        comment2.setUserId(1);
+        comment2.setUsername("mazy");
+        comment2.setTargetCommentId(1);
+        comment2.setTargetUserId(2);
+        comment2.setTargetUsername("angle");
+
+        mongoTemplate.save(moment);
+    }
+
+    @Test
+    public void testMomentFind() {
+        Query query = new Query(Criteria.where("comments.comment").is("comment2"));
+        Moment moment1 = this.mongoTemplate.findOne(query, Moment.class);
+        log.info(moment1.getComments().get(0).getUsername());
     }
 }
