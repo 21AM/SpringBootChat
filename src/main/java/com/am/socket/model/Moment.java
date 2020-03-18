@@ -1,14 +1,21 @@
 package com.am.socket.model;
 
+import org.springframework.data.annotation.Id;
+
 import java.util.Date;
+import java.util.List;
 
 public class Moment {
+
+    @Id
+    private String id;
 
     private int momentId;
     private int userId;
     private String username;
     private String content;
     private Date pubtime;
+    private List<Comment> comments;
 
     public int getMomentId() {
         return momentId;
@@ -50,4 +57,11 @@ public class Moment {
         this.pubtime = pubtime;
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 }
